@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CheckPackage>
+	<Parameters 	CashierName="Иванов П.П." 
+					CashierINN="32456234523452"
+					OperationType=""
+					TaxationSystem=""
+					CustomerInfo="Покупатель (клиент) - наименование организации или фамилия, имя, отчество (при наличии), серия и номер паспорта покупателя (клиента)."
+					CustomerINN="01234567893452"
+					CustomerEmail=""
+					CustomerPhone=""
+					SenderEmail=""	
+					SaleAddress=""
+					SaleLocation=""
+					AgentType=""
+					AdditionalAttribute="">
+		
+		<CorrectionData		Type=""
+							Description=""
+							Datе=""
+							Number=""/>
+		<AgentData		AgentOperation=""
+						AgentPhone=""
+						PaymentProcessorPhone=""
+						AcquirerOperatorPhone="" 
+						AcquirerOperatorName=""
+						AcquirerOperatorAddress=""
+						AcquirerOperatorINN=""/>
+		<VendorData			VendorPhone=""
+							VendorName=""
+							VendorINN=""/>
+		<UserAttribute		Name=""
+							Value=""/>
+	</Parameters>
+	<Positions>
+		<FiscalString 	Name="Сухарики Моги ROLLI с розмарином 90г 1/20"
+						Quantity="3"
+						PriceWithDiscount="56"
+						AmountWithDiscount=""
+						DiscountAmount=""
+						Department=""
+						VATRate=""
+						VATAmount=""
+						PaymentMethod=""
+						CalculationSubject=""	
+						CalculationAgent=""
+						MeasurementUnit=""	
+						CountryOfOrigin=""
+						CustomsDeclaration=""
+						AdditionalAttribute=""	
+						ExciseAmount=""  >
+			<AgentData		AgentOperation=""
+							AgentPhone=""
+							PaymentProcessorPhone=""
+							AcquirerOperatorPhone=""
+							AcquirerOperatorName=""
+							AcquirerOperatorAddress=""
+							AcquirerOperatorINN=""/>
+			<VendorData			VendorPhone=""
+								VendorName=""
+								VendorINN=""/>
+			<GoodCodeData	MarkingCode=""/>
+		</FiscalString>
+		<FiscalString 	Name="Товар"
+						Quantity="1"
+						PriceWithDiscount="25"
+						AmountWithDiscount=""
+						DiscountAmount=""
+						Department=""
+						VATRate=""
+						VATAmount=""
+						PaymentMethod=""
+						CalculationSubject=""	
+						CalculationAgent=""
+						MeasurementUnit=""	
+						CountryOfOrigin=""
+						CustomsDeclaration=""
+						AdditionalAttribute=""	
+						ExciseAmount=""  >
+			<AgentData		AgentOperation=""
+							AgentPhone=""
+							PaymentProcessorPhone=""
+							AcquirerOperatorPhone=""
+							AcquirerOperatorName=""
+							AcquirerOperatorAddress=""
+							AcquirerOperatorINN=""/>
+			<VendorData			VendorPhone=""
+								VendorName=""
+								VendorINN=""/>
+			<GoodCodeData	MarkingCode=""/>
+		</FiscalString>
+	</Positions>
+	<Payments 	Cash="193" 
+				ElectronicPayment="0"
+				PrePayment="1"
+				PostPayment="2"
+				Barter="2"        />
+</CheckPackage>
