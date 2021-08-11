@@ -4,12 +4,16 @@
              xmlns:locate="clr-namespace:App1"
              x:Class="App1.MainPage">
 
-    <ListView x:Name="MyListView" Footer="">
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <TextCell Text="{Binding CashierName}" Detail="{Binding CashierINN}" />
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+    <StackLayout>
+        <ListView x:Name="MyListView" Footer="">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding CashierName}" Detail="{Binding CashierINN}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Clicked="Button_Clicked" Text="Generate" />
+    </StackLayout>
+
 
 </ContentPage>
