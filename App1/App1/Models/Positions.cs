@@ -10,6 +10,12 @@ namespace App1.Models
 	{
 		[XmlElement(ElementName = "FiscalString")]
 		public List<FiscalString> FiscalString { get; set; }
+
+		[XmlAttribute(AttributeName = "TextString")]
+		public string TextString { get; set; }
+
+		[XmlElement(ElementName = "Barcode")]
+		public List<Barcode> Barcode { get; set; }
 	}
 
 }

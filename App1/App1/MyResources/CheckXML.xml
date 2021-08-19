@@ -60,7 +60,7 @@
 								VendorINN=""/>
 			<GoodCodeData	MarkingCode=""/>
 		</FiscalString>
-		<FiscalString 	Name="Товар"
+		<FiscalString 	Name="Товар MFNF"
 						Quantity="1"
 						PriceWithDiscount="25"
 						AmountWithDiscount=""
