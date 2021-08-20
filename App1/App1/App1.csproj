@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <None Remove="MyResources\CheckXML.xml" />
+    <None Remove="MyResources\InputSerif-Thin.ttf" />
+    <None Remove="MyResources\ISerif-Thin.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,5 +24,10 @@
     <PackageReference Include="itext7" Version="7.1.16" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="MyResources\InputSerif-Thin.ttf" />
+    <Resource Include="MyResources\ISerif-Thin.ttf" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,9 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Reflection;
 using App1.Models;
+using Xamarin.Forms;
 
+[assembly: ExportFont("InputSerif-Thin.ttf", Alias = "InputSerif")]
 namespace App1
 {
     public class GeneratePDF
@@ -34,16 +36,30 @@ namespace App1
             //размер страницы PDF документа
             PageSize pageSize = new PageSize(PageSize.B7);
             Document document = new Document(pdfDoc, pageSize);
-            PdfFont pdfFont = PdfFontFactory.CreateFont(FontConstants.TIMES_ROMAN, "CP1250", true);
 
-            
+
+            Stream stream_font = assembly.GetManifestResourceStream("App1.MyResources.InputSerif-Thin1.ttf");
+
+
+
+            var memoryStream = new MemoryStream();
+            stream_font.CopyTo(memoryStream);
+            byte[] font_Serif = memoryStream.ToArray();
+
+            // https://coderoad.ru/1080442/Как-преобразовать-поток-в-byte-в-C
+            // https://docs.microsoft.com/ru-ru/xamarin/xamarin-forms/data-cloud/data/files?tabs=macos
+            PdfFont pdfFont = PdfFontFactory.CreateFont(font_Serif, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
+
+
+
+
 
             Text text = new Text("мамам");
             text.SetFont(pdfFont);
             text.SetFontSize(14);
             Paragraph paragraph1 = new Paragraph();
 
-            Color color = new DeviceRgb(255, 100, 20);
+            iText.Kernel.Colors.Color color = new DeviceRgb(255, 100, 20);
             text.SetFontColor(color);
 
             //foreach (var fiscalString in parameters.Positions.FiscalString)
@@ -73,12 +89,12 @@ namespace App1
         }
 
 
-        Image CreateQRcode(PdfDocument pdfDoc, string time = "1", string sum = "1", string fn = "1", string i = "1", string fp = "1", string n = "1")
+        iText.Layout.Element.Image CreateQRcode(PdfDocument pdfDoc, string time = "1", string sum = "1", string fn = "1", string i = "1", string fp = "1", string n = "1")
         {
             //создание QR-кода
             BarcodeQRCode barcodeQRCode = new BarcodeQRCode(time + sum + fn + i + fp + n);
             //конвертация QR-кода в изображение
-            var imgBar = new Image(barcodeQRCode.CreateFormXObject(pdfDoc));
+            var imgBar = new iText.Layout.Element.Image(barcodeQRCode.CreateFormXObject(pdfDoc));
             imgBar.SetWidth(56.6929f);
             imgBar.SetHeight(56.6929f);
 
