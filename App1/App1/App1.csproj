@@ -13,11 +13,17 @@
   <ItemGroup>
     <None Remove="MyResources\CheckXML.xml" />
     <None Remove="MyResources\InputSerif-Thin.ttf" />
+    <None Remove="MyResources\InputSerif-Thin1.ttf" />
+    <None Remove="MyResources\InputSerif-Thin2.ttf" />
+    <None Remove="MyResources\InputSerif-Thin3.ttf" />
     <None Remove="MyResources\ISerif-Thin.ttf" />
+    <None Remove="MyResources\Serif-Thin.ttf" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="MyResources\CheckXML.xml" />
+    <EmbeddedResource Include="MyResources\Serif-Thin.ttf" />
+    <Resource Include="MyResources\InputSerif-Thin3.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +34,8 @@
 
   <ItemGroup>
     <Resource Include="MyResources\InputSerif-Thin.ttf" />
+    <Resource Include="MyResources\InputSerif-Thin1.ttf" />
+    <Resource Include="MyResources\InputSerif-Thin2.ttf" />
     <Resource Include="MyResources\ISerif-Thin.ttf" />
   </ItemGroup>
 </Project>
