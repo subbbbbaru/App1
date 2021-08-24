@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 
+// CheckPackage FiscalString
+
 namespace App1.Models
 {
 	public class FiscalString

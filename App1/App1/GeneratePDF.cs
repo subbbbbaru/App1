@@ -24,11 +24,14 @@ namespace App1
         public void CreatePDFfile(PdfDocument pdfDoc)
         {
             var assembly = typeof(MainPage).GetTypeInfo().Assembly;
-            Stream stream = assembly.GetManifestResourceStream("App1.MyResources.CheckXML.xml");
-            var serialize = new XmlSerializer(typeof(CheckPackage));
-            CheckPackage parameters = (CheckPackage)serialize.Deserialize(stream);
+            Stream stream_Check_Pack = assembly.GetManifestResourceStream("App1.MyResources.CheckXML.xml");
+            var serialize_Check_Pack = new XmlSerializer(typeof(CheckPackage));
+            CheckPackage parameters_Check_Pack = (CheckPackage)serialize_Check_Pack.Deserialize(stream_Check_Pack);
 
-            
+            Stream stream_Doc_Out_Param = assembly.GetManifestResourceStream("App1.MyResources.DocumentOutput.xml");
+            var serialize_Doc_Out_Param = new XmlSerializer(typeof(DocumentOutputParameters));
+            DocumentOutputParameters parameters_Doc_Out_Param = (DocumentOutputParameters)serialize_Doc_Out_Param.Deserialize(stream_Doc_Out_Param);
+
 
             // var fisk = parameters.Positions.FiscalString.;
 
@@ -56,29 +59,49 @@ namespace App1
 
 
 
-            string text1 = "Misha is Vine magnat!";
+            string text1 = $"КАССОВЫЙ ЧЕК №{parameters_Doc_Out_Param.Parameters.CheckNumber}";
             Text text = new Text(text1);
 
             text.SetFont(pdfFont);
             text.SetFontSize(14);
-            Paragraph paragraph1 = new Paragraph();
+            Paragraph p_Title_check_Number = new Paragraph();
 
             iText.Kernel.Colors.Color color = new DeviceRgb(255, 150, 20);
             //text.SetFontColor(color);
-            paragraph1.SetFont(pdfFont);
+            p_Title_check_Number.SetFont(pdfFont);
+            
             //разделитель
             LineSeparator lineSeparator = new LineSeparator(new SolidLine());
             document.Add(lineSeparator);
 
-            foreach (var fiscalString in parameters.Positions.FiscalString)
+            p_Title_check_Number.Add(text).SetTextAlignment(TextAlignment.CENTER);
+            document.Add(p_Title_check_Number);
+
+            document.Add(lineSeparator);
+
+            Paragraph p_check_product = new Paragraph();
+            p_check_product.SetFont(pdfFont);
+
+            foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
             {
-                paragraph1.Add(fiscalString.Name + "________" + fiscalString.PriceWithDiscount);
-                paragraph1.Add("\n");
+                Text te = new Text(fiscalString.Name);
+                te.SetFont(pdfFont);
+                te.SetFontSize(14);
+                te.SetTextAlignment(TextAlignment.LEFT);
+                Text te2 = new Text(fiscalString.PriceWithDiscount);
+                te2.SetFont(pdfFont);
+                te2.SetFontSize(14);
+                te2.SetTextAlignment(TextAlignment.CENTER);
+
+                p_check_product.Add(te/*fiscalString.Name + "\t" + fiscalString.PriceWithDiscount*/);
+                p_check_product.Add(new Tab());
+                p_check_product.Add(te2);
+                p_check_product.Add("\n");
+                
             }
+            document.Add(p_check_product);
+            //p_check_product.SetTextAlignment(TextAlignment.LEFT);
 
-            paragraph1.Add(text);
-
-            document.SetTextAlignment(TextAlignment.CENTER).Add(paragraph1);
 
 
             //добавить QR-код в приложение и установить местоположение
@@ -101,7 +124,6 @@ namespace App1
             var imgBar = new iText.Layout.Element.Image(barcodeQRCode.CreateFormXObject(pdfDoc));
             imgBar.SetWidth(56.6929f);
             imgBar.SetHeight(56.6929f);
-            //imgBar.SetTextAlignment(TextAlignment.RIGHT);
             return  imgBar;
         }
         //private void AddTitle(Document document, string text, int align, )

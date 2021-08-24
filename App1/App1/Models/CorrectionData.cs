@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 
+// CheckPackage CorrectionData
+
 namespace App1.Models
 {
 	public class CorrectionData

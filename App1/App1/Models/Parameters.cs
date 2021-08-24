@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 
+// CheckPackage PARAMETERS
+
 namespace App1.Models
 {
 	public class Parameters

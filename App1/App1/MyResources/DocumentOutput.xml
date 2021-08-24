@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DocumentOutputParameters>
+	<Parameters 	ShiftNumber="12" 
+					CheckNumber="3868686786"
+					ShiftClosingCheckNumber="2"
+					AddressSiteInspections="ofd.ru"
+					FiscalSign="675757575757"
+					DateTime="21012021">
+	</Parameters>	
+</DocumentOutputParameters>

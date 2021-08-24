@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 
+// CheckPackage AgentData
+
 namespace App1.Models
 {
 	public class AgentData

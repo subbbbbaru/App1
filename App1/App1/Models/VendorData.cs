@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 
+// CheckPackage VendorData
+
 namespace App1.Models
 {
 	public class VendorData

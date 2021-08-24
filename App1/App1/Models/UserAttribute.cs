@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 
+// CheckPackage UserAttribute
+
 namespace App1.Models
 {
 	public class UserAttribute

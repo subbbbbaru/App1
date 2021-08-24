@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Remove="MyResources\CheckXML.xml" />
+    <None Remove="MyResources\DocumentOutput.xml" />
     <None Remove="MyResources\InputSerif-Thin.ttf" />
     <None Remove="MyResources\InputSerif-Thin1.ttf" />
     <None Remove="MyResources\InputSerif-Thin2.ttf" />
@@ -22,6 +23,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="MyResources\CheckXML.xml" />
+    <EmbeddedResource Include="MyResources\DocumentOutput.xml" />
     <EmbeddedResource Include="MyResources\Serif-Thin.ttf" />
     <Resource Include="MyResources\InputSerif-Thin3.ttf" />
   </ItemGroup>

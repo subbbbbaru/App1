@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 
+// CheckPackage GoodCodeData
+
 namespace App1.Models
 {
 	public class GoodCodeData
