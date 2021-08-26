@@ -15,6 +15,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Reflection;
 using App1.Models;
+using System.Collections;
 
 namespace App1
 {
@@ -56,19 +57,19 @@ namespace App1
 
             PdfFont pdfFont = PdfFontFactory.CreateFont(font_Serif, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
 
-
+            document.SetFont(pdfFont);
 
 
             string text1 = $"КАССОВЫЙ ЧЕК №{parameters_Doc_Out_Param.Parameters.CheckNumber}";
             Text text = new Text(text1);
 
-            text.SetFont(pdfFont);
+            //text.SetFont(pdfFont);
             text.SetFontSize(14);
             Paragraph p_Title_check_Number = new Paragraph();
 
             iText.Kernel.Colors.Color color = new DeviceRgb(255, 150, 20);
             //text.SetFontColor(color);
-            p_Title_check_Number.SetFont(pdfFont);
+            //p_Title_check_Number.SetFont(pdfFont);
             
             //разделитель
             LineSeparator lineSeparator = new LineSeparator(new SolidLine());
@@ -79,28 +80,36 @@ namespace App1
 
             document.Add(lineSeparator);
 
-            Paragraph p_check_product = new Paragraph();
-            p_check_product.SetFont(pdfFont);
+            
+
+            
+            Table t_check_product = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3})).UseAllAvailableWidth();
 
             foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
             {
-                Text te = new Text(fiscalString.Name);
-                te.SetFont(pdfFont);
-                te.SetFontSize(14);
-                te.SetTextAlignment(TextAlignment.LEFT);
-                Text te2 = new Text(fiscalString.PriceWithDiscount);
-                te2.SetFont(pdfFont);
-                te2.SetFontSize(14);
-                te2.SetTextAlignment(TextAlignment.CENTER);
+                Paragraph p_check_product_Name = new Paragraph(fiscalString.Name);
+                Paragraph p_check_product_PriceWithDiscount = new Paragraph(fiscalString.PriceWithDiscount);
+                //Text text_Name = new Text("");
+                Cell cell_Name = new Cell().Add(p_check_product_Name)
+                    .SetTextAlignment(TextAlignment.LEFT)
+                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+                // help https://kb.itextpdf.com/home/it7kb/examples/splitting-tables
+                // help https://kb.itextpdf.com/home/it7kb/ebooks/itext-7-building-blocks/chapter-6-creating-actions-destinations-and-bookmarks
+                // help https://kb.itextpdf.com/home/it7kb/examples/itext-7-building-blocks-chapter-6-actions-destinations-bookmarks#iText7BuildingBlocks-Chapter6:actions,destinations,bookmarks-c06e04_toc_gotonamed
+                Cell cell_PriceWithDiscount = new Cell().Add(p_check_product_PriceWithDiscount)
+                    .SetTextAlignment(TextAlignment.RIGHT)
+                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
 
-                p_check_product.Add(te/*fiscalString.Name + "\t" + fiscalString.PriceWithDiscount*/);
-                p_check_product.Add(new Tab());
-                p_check_product.Add(te2);
-                p_check_product.Add("\n");
+                t_check_product.AddCell(cell_Name);
+                t_check_product.AddCell(cell_PriceWithDiscount);
                 
+
+
+
+
             }
-            document.Add(p_check_product);
-            //p_check_product.SetTextAlignment(TextAlignment.LEFT);
+            document.Add(t_check_product);
+
 
 
 
@@ -126,9 +135,16 @@ namespace App1
             imgBar.SetHeight(56.6929f);
             return  imgBar;
         }
-        //private void AddTitle(Document document, string text, int align, )
+        //public void check_Product(Table table, Paragraph par, Paragraph par2, string Name, string PriceWithDiscount)
         //{
+        //    Text text_Name = new Text(Name + "\n");
+        //    Cell cell_Name = new Cell().Add(par.Add(text_Name).SetTextAlignment(TextAlignment.LEFT));
+        //    table.AddCell(cell_Name);
 
+
+        //    Text text_PriceWithDiscount = new Text(PriceWithDiscount + "\n");
+        //    Cell cell_PriceWithDiscount = new Cell().Add(par2.Add(text_PriceWithDiscount).SetTextAlignment(TextAlignment.RIGHT));
+        //    table.AddCell(cell_PriceWithDiscount);
         //}
 
 
