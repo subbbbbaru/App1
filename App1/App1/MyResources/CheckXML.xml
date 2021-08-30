@@ -3,7 +3,7 @@
 	<Parameters 	CashierName="Иванов П.П." 
 					CashierINN="32456234523452"
 					OperationType=""
-					TaxationSystem=""
+					TaxationSystem="1"
 					CustomerInfo="Покупатель (клиент) - наименование организации или фамилия, имя, отчество (при наличии), серия и номер паспорта покупателя (клиента)."
 					CustomerINN="01234567893452"
 					CustomerEmail=""
@@ -32,13 +32,13 @@
 							Value=""/>
 	</Parameters>
 	<Positions>
+		<!-- VATRate="20"-->
 		<FiscalString 	Name="Сухарики Моги ROLLI с розмарином 90г 1/20"
 						Quantity="3"
 						PriceWithDiscount="56"
 						AmountWithDiscount=""
 						DiscountAmount=""
 						Department=""
-						VATRate="20"
 						VATAmount=""
 						PaymentMethod="1"
 						CalculationSubject=""	
