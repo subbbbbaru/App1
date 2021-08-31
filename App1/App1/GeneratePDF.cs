@@ -170,13 +170,13 @@ namespace App1
 
 
 
-            Paragraph p_Title_check = new Paragraph("КАССОВЫЙ ЧЕК ПРИХОД")
+            Paragraph p_Title_check = new Paragraph($"КАССОВЫЙ ЧЕК {check_OperationType(parameters_Check_Pack.Parameters.OperationType)}")
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetFontSize(14);
             document.Add(p_Title_check);
 
 
-
+            int price_DISCOUNT = 0;
             Table t_check_product = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3 })).UseAllAvailableWidth();
             foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
             {
@@ -200,6 +200,7 @@ namespace App1
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
                     .SetTextAlignment(TextAlignment.RIGHT)
                     .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+                price_DISCOUNT = Int32.Parse(fiscalString.PriceWithDiscount) + price_DISCOUNT;
 
 
                 // ячейка с НДС товара
@@ -253,6 +254,108 @@ namespace App1
             // Добавить таблицу в документ
             document.Add(t_check_product);
 
+            document.Add(lineSeparator);
+
+            Table t_check_middle = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3 })).UseAllAvailableWidth();
+
+
+            int discount = 0;
+            int discount_nacenka = 0;
+            string discount_or_nacenka = "";
+
+            foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
+            {
+                if(fiscalString.DiscountAmount != null)
+                {
+                    int temp_discount = Int32.Parse(fiscalString.DiscountAmount);
+                    if(temp_discount > 0)
+                    {
+                        discount_nacenka = temp_discount + discount_nacenka;
+                    }
+                    else if(temp_discount < 0)
+                    {
+                        discount = discount + temp_discount;
+                    }
+                }
+            }
+
+            if ((discount_nacenka + discount) > 0)
+            {
+                discount_or_nacenka = "Наценка";
+            }
+            else
+            {
+                discount_or_nacenka = "Скидка";
+            }
+
+
+            // Скидка: Дисконтные карты ПРОСТО строка НАЦЕНКА или СКИДКА
+            Paragraph p_Discount_string = new Paragraph(discount_or_nacenka);
+            Cell cell_Discount_string = new Cell().Add(p_Discount_string)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            
+
+            // Скидка: Дисконтные карты СУММА скидок ИЛИ НАЦЕНОК
+            Paragraph p_DiscountAmount = new Paragraph($"{discount_nacenka - discount}");
+            Cell cell_DiscountAmount = new Cell().Add(p_DiscountAmount)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.RIGHT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+            // ИТОГ
+            Paragraph p_Price_Amount = new Paragraph("ИТОГ:");
+            Cell cell_Price_Amount = new Cell().Add(p_Price_Amount)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+            // ИТОГ(сумма)
+            Paragraph p_Price_Discount = new Paragraph($"{price_DISCOUNT}");
+            Cell cell_Price_Discount = new Cell().Add(p_Price_Discount)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.RIGHT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+            // ОПЛАТА
+
+            ////if (Payments.Payments.Cash != null)
+            ////{
+            ////    //вставить параграф и ячейку
+            ////}
+            ////else if (Payments.Payments.ElectronicPayment != null)
+            ////{
+
+            ////}
+            ////else if (Payments.Payments.PrePayment != null)
+            ////{
+
+            ////}
+            ////else if (Payments.Payments.PostPayment != null)
+            ////{
+
+            ////}
+            ////else if (Payments.Payments.Barter != null)
+            ////{
+
+            ////}
+
+
+            Paragraph p_check_product_Payments_string = new Paragraph($"ОПЛАТА: {(parameters_Check_Pack)}");
+            Cell cell_Payments_string = new Cell().Add(p_check_product_Payments_string)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+            // ОПЛАТА
+            Paragraph p_check_product_Payments = new Paragraph($"{price_DISCOUNT}");
+            Cell cell_Payments = new Cell().Add(p_check_product_Payments)
+                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.RIGHT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+            //t_check_middle.AddCell(cell_Discount_string);
 
 
 
@@ -277,6 +380,32 @@ namespace App1
             imgBar.SetWidth(56.6929f);
             imgBar.SetHeight(56.6929f);
             return  imgBar;
+        }
+
+        // Тип операции (Таблица 25 документа ФФД)
+        private string check_OperationType(string OperationType)
+        {
+            string operType = OperationType;
+            string operType_return = "";
+            switch (operType)
+            {
+                case "1":
+                    operType_return = "ПРИХОД";
+                    break;
+                case "2":
+                    operType_return = "ВОЗВРАТ ПРИХОДА";
+                    break;
+                case "3":
+                    operType_return = "РАСХОД";
+                    break;
+                case "4":
+                    operType_return = "ВОЗВРАТ РАСХОДА";
+                    break;
+                default:
+                    operType_return = "ERROR !!! Тип операции!";
+                    break;
+            }
+            return operType_return;
         }
 
         // Системы налогообложения
