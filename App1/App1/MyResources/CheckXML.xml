@@ -118,7 +118,7 @@
 		</FiscalString>
 	</Positions>
 	<Payments 	Cash="193" 
-				ElectronicPayment="0"
+				ElectronicPayment=""
 				PrePayment="1"
 				PostPayment="2"
 				Barter="2"        />

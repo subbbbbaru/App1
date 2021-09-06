@@ -15,6 +15,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Reflection;
 using App1.Models;
+using App1.Generate;
 using System.Collections;
 
 namespace App1
@@ -34,13 +35,11 @@ namespace App1
             DocumentOutputParameters parameters_Doc_Out_Param = (DocumentOutputParameters)serialize_Doc_Out_Param.Deserialize(stream_Doc_Out_Param);
 
 
-            // var fisk = parameters.Positions.FiscalString.;
-
-            //размер страницы PDF документа
+            // размер страницы PDF документа
             PageSize pageSize = new PageSize(PageSize.A4);
             Document document = new Document(pdfDoc, pageSize);
 
-           
+            // подключение шрифтов
 
             Stream stream_font = assembly.GetManifestResourceStream("App1.MyResources.Serif-Thin.ttf");
 
@@ -51,27 +50,21 @@ namespace App1
 
             // https://coderoad.ru/1080442/Как-преобразовать-поток-в-byte-в-C
             // https://docs.microsoft.com/ru-ru/xamarin/xamarin-forms/data-cloud/data/files?tabs=macos
-
-
-            // PdfFont pdfFont = PdfFontFactory.CreateFont(font_Serif, "Cp1251", PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED)       
+      
 
             PdfFont pdfFont = PdfFontFactory.CreateFont(font_Serif, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
 
-            document.SetFont(pdfFont);
+            document.SetFont(pdfFont); // установить шрифт
 
 
             string text1 = $"КАССОВЫЙ ЧЕК №{parameters_Doc_Out_Param.Parameters.CheckNumber}";
             Text text = new Text(text1);
 
-            //text.SetFont(pdfFont);
             text.SetFontSize(14);
             Paragraph p_Title_check_Number = new Paragraph();
 
-            iText.Kernel.Colors.Color color = new DeviceRgb(255, 150, 20);
-            //text.SetFontColor(color);
-            //p_Title_check_Number.SetFont(pdfFont);
             
-            //разделитель
+            // разделитель
             LineSeparator lineSeparator = new LineSeparator(new SolidLine());
             document.Add(lineSeparator);
 
@@ -80,564 +73,30 @@ namespace App1
 
             document.Add(lineSeparator);
 
-            
+            // Генерация блока ИНН...КТТ...
+            Gen_INN_KKT gen_INN_KKT = new Gen_INN_KKT();
+            gen_INN_KKT.Gen_INN_kkt(document, parameters_Check_Pack, parameters_Doc_Out_Param);
 
-            
-            Table t_check_header = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3})).UseAllAvailableWidth();
-
-            // ИНН
-            Paragraph p_parameters_CashierINN = new Paragraph($"ИНН:{parameters_Check_Pack.Parameters.CashierINN} кассира?");
-            Cell cell_CashierINN = new Cell().Add(p_parameters_CashierINN)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_CashierINN);
-
-
-            // ФН
-            Paragraph p_FN = new Paragraph("ФН: ХЧЧЩЩЩЩ");
-            Cell cell_FN = new Cell().Add(p_FN)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_FN);
-
-            // РН ККТ
-            Paragraph p_RN_KKT = new Paragraph("РН ККТ: ХХХХХХЫЧ");
-            Cell cell_RN_KKT = new Cell().Add(p_RN_KKT)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_RN_KKT);
-
-            // СНО
-            Paragraph p_parameters_TaxationSystem = new Paragraph($"СНО:{check_TaxationSystem(parameters_Check_Pack.Parameters.TaxationSystem)}");
-            Cell cell_TaxationSystem = new Cell().Add(p_parameters_TaxationSystem)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_TaxationSystem);
-
-            // ЗН ККТ
-            Paragraph p_ZN_KKT = new Paragraph("ЗН ККТ: ХХХХХХЫЧ");
-            Cell cell_ZN_KKT = new Cell().Add(p_ZN_KKT)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_ZN_KKT);
-
-            // СМЕНА и ЧЕК за смену
-            Paragraph p_doc_out_par_ShiftNumber_CheckNumber = new Paragraph($"СМЕНА:{parameters_Doc_Out_Param.Parameters.ShiftNumber} ЧЕК:{parameters_Doc_Out_Param.Parameters.ShiftClosingCheckNumber}");
-            Cell cell_doc_out_par_ShiftNumber_CheckNumber = new Cell().Add(p_doc_out_par_ShiftNumber_CheckNumber)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_doc_out_par_ShiftNumber_CheckNumber);
-
-            // МЕСТО РАСЧЕТОВ
-            Paragraph p_parameters_SaleAddress_string = new Paragraph($"МЕСТО РАСЧЕТОВ(тут адрес или место?):");
-            Cell cell_SaleAddress_string = new Cell().Add(p_parameters_SaleAddress_string)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_SaleAddress_string);
-
-            Paragraph p_parameters_SaleAddress = new Paragraph($"МЕСТО РАСЧЕТОВ(тут адрес или место?):{parameters_Check_Pack.Parameters.SaleAddress}");
-            Cell cell_SaleAddress = new Cell().Add(p_parameters_SaleAddress)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_SaleAddress);
-
-            // КАССИР
-            Paragraph p_parameters_CashierName = new Paragraph($"КАССИР:{parameters_Check_Pack.Parameters.CashierName}");
-            Cell cell_CashierName = new Cell().Add(p_parameters_CashierName)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_CashierName);
-
-            // ДАТА
-            Paragraph p_doc_out_par_DateTime = new Paragraph(parameters_Doc_Out_Param.Parameters.DateTime);
-            Cell cell_doc_out_par_DateTime = new Cell().Add(p_doc_out_par_DateTime)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_header.AddCell(cell_doc_out_par_DateTime);
-
-            document.Add(t_check_header);
-            document.Add(lineSeparator);
-
-
-
-            Paragraph p_Title_check = new Paragraph($"КАССОВЫЙ ЧЕК {check_OperationType(parameters_Check_Pack.Parameters.OperationType)}")
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetFontSize(14);
-            document.Add(p_Title_check);
-
-
-            double price_DISCOUNT = 0.0;
-            Table t_check_product = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3 })).UseAllAvailableWidth();
-            foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
-            {
-                // Добавление товаров и их элементов в чек
-
-                // help https://kb.itextpdf.com/home/it7kb/examples/splitting-tables
-                // help https://kb.itextpdf.com/home/it7kb/ebooks/itext-7-building-blocks/chapter-6-creating-actions-destinations-and-bookmarks
-                // help https://kb.itextpdf.com/home/it7kb/examples/itext-7-building-blocks-chapter-6-actions-destinations-bookmarks#iText7BuildingBlocks-Chapter6:actions,destinations,bookmarks-c06e04_toc_gotonamed
-    
-
-                // ячейка с именем товара
-                Paragraph p_check_product_Name = new Paragraph(fiscalString.Name);
-                Cell cell_Name = new Cell().Add(p_check_product_Name)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                // ячейка с ценой товара
-                Paragraph p_check_product_PriceWithDiscount = new Paragraph(fiscalString.PriceWithDiscount);
-                Cell cell_PriceWithDiscount = new Cell().Add(p_check_product_PriceWithDiscount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                price_DISCOUNT = double.Parse(fiscalString.PriceWithDiscount) + price_DISCOUNT;
-
-
-                // ячейка с НДС товара
-                if (fiscalString.VATRate != null)
-                {
-                    Paragraph p_check_product_VATRate = new Paragraph($"НДС {fiscalString.VATRate}%");
-                    Cell cell_VATRate = new Cell().Add(p_check_product_VATRate)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.BOTTOM);
-
-                    // ячейка с Признаком способа расчета
-                    Paragraph p_check_product_PaymentMethod = new Paragraph(check_PaymentMethod(fiscalString.PaymentMethod));
-                    Cell cell_PaymentMethod = new Cell().Add(p_check_product_PaymentMethod)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.RIGHT)
-                        .SetVerticalAlignment(VerticalAlignment.BOTTOM);
-
-                    // Добавление ячейки Имени и цены в таблицу
-                    t_check_product.AddCell(cell_Name);
-                    t_check_product.AddCell(cell_PriceWithDiscount);
-
-                    // Добавление ячейки НДС и Признаком способа расчета в таблицу
-                    t_check_product.AddCell(cell_VATRate);
-                    t_check_product.AddCell(cell_PaymentMethod);
-                }
-                else
-                {
-                    Paragraph p_check_product_VATRate = new Paragraph($"");
-                    Cell cell_VATRate = new Cell().Add(p_check_product_VATRate)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.BOTTOM);
-
-                    // ячейка с Признаком способа расчета
-                    Paragraph p_check_product_PaymentMethod = new Paragraph(check_PaymentMethod(fiscalString.PaymentMethod));
-                    Cell cell_PaymentMethod = new Cell().Add(p_check_product_PaymentMethod)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.RIGHT)
-                        .SetVerticalAlignment(VerticalAlignment.BOTTOM);
-
-                    // Добавление ячейки Имени и цены в таблицу
-                    t_check_product.AddCell(cell_Name);
-                    t_check_product.AddCell(cell_PriceWithDiscount);
-
-                    // Добавление ячейки НДС и Признаком способа расчета в таблицу
-                    t_check_product.AddCell(cell_VATRate);
-                    t_check_product.AddCell(cell_PaymentMethod);
-                }
-            }
-            // Добавить таблицу в документ
-            document.Add(t_check_product);
 
             document.Add(lineSeparator);
 
-            Table t_check_middle = new Table(UnitValue.CreatePercentArray(new float[] { 7, 3 })).UseAllAvailableWidth();
+            // Генерация блока Подуктов
+            Gen_Check_Products gen_Check_Products = new Gen_Check_Products();
+            gen_Check_Products.Gen_Check_Product(document, parameters_Check_Pack, parameters_Doc_Out_Param, lineSeparator);
 
-
-            double discount = 0.0;
-            double discount_nacenka = 0.0;
-            string discount_or_nacenka = "";
-
-            foreach (var fiscalString in parameters_Check_Pack.Positions.FiscalString)
-            {
-                if(fiscalString.DiscountAmount != null)
-                {
-                    double temp_discount = double.Parse(fiscalString.DiscountAmount);
-                    if(temp_discount > 0)
-                    {
-                        discount_nacenka = temp_discount + discount_nacenka;
-                    }
-                    else if(temp_discount < 0)
-                    {
-                        discount = discount + temp_discount;
-                    }
-                }
-            }
-
-            if ((discount_nacenka + discount) > 0)
-            {
-                discount_or_nacenka = "Наценка(всего):";
-            }
-            else
-            {
-                discount_or_nacenka = "Скидка(всего):";
-            }
-
-
-            // Скидка: Дисконтные карты ПРОСТО строка НАЦЕНКА или СКИДКА
-            Paragraph p_Discount_string = new Paragraph(discount_or_nacenka);
-            Cell cell_Discount_string = new Cell().Add(p_Discount_string)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            
-
-            // Скидка: Дисконтные карты СУММА скидок ИЛИ НАЦЕНОК
-            Paragraph p_DiscountAmount = new Paragraph($"{discount_nacenka + discount}");
-            Cell cell_DiscountAmount = new Cell().Add(p_DiscountAmount)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_middle.AddCell(cell_Discount_string);
-            t_check_middle.AddCell(cell_DiscountAmount);
-
-
-            // ИТОГ
-            Paragraph p_Price_Amount = new Paragraph("ИТОГ:");
-            Cell cell_Price_Amount = new Cell().Add(p_Price_Amount)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-            // ИТОГ(сумма)
-            Paragraph p_Price_Discount = new Paragraph($"{price_DISCOUNT}");
-            Cell cell_Price_Discount = new Cell().Add(p_Price_Discount)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_middle.AddCell(cell_Price_Amount);
-            t_check_middle.AddCell(cell_Price_Discount);
-
-            document.Add(t_check_middle);
-
-
-            Table t_check_Payments = new Table(UnitValue.CreatePercentArray(new float[] { 1.5f, 5.5f, 3 })).UseAllAvailableWidth();
-
-
-            // ОПЛАТА
-            bool payments_flag = false; // проверка что первая ячейка(где ОПЛАТА) из трех нужна
-
-            Paragraph p_check_product_Payments_string = new Paragraph($"ОПЛАТА: ");
-            Cell cell_Payments_string = new Cell().Add(p_check_product_Payments_string)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_Payments.AddCell(cell_Payments_string);
-
-            if (parameters_Check_Pack.Payments.Cash != null)
-            {
-                payments_flag = true;
-                string Cash = "НАЛИЧНЫМИ";
-                Paragraph p_check_product_Payments_Cash = new Paragraph(Cash);
-                Cell cell_Payments_Cash = new Cell().Add(p_check_product_Payments_Cash)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                double g = double.Parse(parameters_Check_Pack.Payments.Cash);
-                Paragraph p_check_product_Payments_Cash_amount = new Paragraph($"{g}");
-                Cell cell_Payments_Cash_amount = new Cell().Add(p_check_product_Payments_Cash_amount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                t_check_Payments.AddCell(cell_Payments_Cash);
-                t_check_Payments.AddCell(cell_Payments_Cash_amount);
-
-            }
-            else if (parameters_Check_Pack.Payments.ElectronicPayment != null)
-            {
-                if(payments_flag == true)
-                {
-                    Paragraph space = new Paragraph("");
-                    Cell cell_space = new Cell().Add(space)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                    t_check_Payments.AddCell(cell_space);
-                }
-
-                string ElectronicPaymen = "БЕЗНАЛИЧНЫМИ";
-                Paragraph p_check_product_Payments_ElectronicPayment = new Paragraph(ElectronicPaymen);
-                Cell cell_Payments_ElectronicPayment = new Cell().Add(p_check_product_Payments_ElectronicPayment)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                Paragraph p_check_product_Payments_ElectronicPayment_amount = new Paragraph($"{double.Parse(parameters_Check_Pack.Payments.ElectronicPayment)}");
-                Cell cell_Payments_ElectronicPayment_amount = new Cell().Add(p_check_product_Payments_ElectronicPayment_amount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                t_check_Payments.AddCell(cell_Payments_ElectronicPayment);
-                t_check_Payments.AddCell(cell_Payments_ElectronicPayment_amount);
-                payments_flag = true;
-            }
-            else if (parameters_Check_Pack.Payments.PrePayment != null)
-            {
-                if (payments_flag == true)
-                {
-                    Paragraph space = new Paragraph("");
-                    Cell cell_space = new Cell().Add(space)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                    t_check_Payments.AddCell(cell_space);
-                }
-                string PrePayment = "ПРЕДОПЛАТА";
-                Paragraph p_check_product_Payments_PrePayment = new Paragraph(PrePayment);
-                Cell cell_Payments_PrePayment = new Cell().Add(p_check_product_Payments_PrePayment)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                Paragraph p_check_product_Payments_PrePayment_amount = new Paragraph($"{double.Parse(parameters_Check_Pack.Payments.PrePayment)}");
-                Cell cell_Payments_PrePayment_amount = new Cell().Add(p_check_product_Payments_PrePayment_amount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                t_check_Payments.AddCell(cell_Payments_PrePayment);
-                t_check_Payments.AddCell(cell_Payments_PrePayment_amount);
-                payments_flag = true;
-            }
-            else if (parameters_Check_Pack.Payments.PostPayment != null)
-            {
-                if (payments_flag == true)
-                {
-                    Paragraph space = new Paragraph("");
-                    Cell cell_space = new Cell().Add(space)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                    t_check_Payments.AddCell(cell_space);
-                }
-                string PostPayment = "ПОСТОПЛАТА";
-                Paragraph p_check_product_Payments_PostPayment = new Paragraph(PostPayment);
-                Cell cell_Payments_PostPayment = new Cell().Add(p_check_product_Payments_PostPayment)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                Paragraph p_check_product_Payments_PostPayment_amount = new Paragraph($"{double.Parse(parameters_Check_Pack.Payments.PostPayment)}");
-                Cell cell_Payments_PostPayment_amount = new Cell().Add(p_check_product_Payments_PostPayment_amount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                t_check_Payments.AddCell(cell_Payments_PostPayment);
-                t_check_Payments.AddCell(cell_Payments_PostPayment_amount);
-                payments_flag = true;
-            }
-            else if (parameters_Check_Pack.Payments.Barter != null)
-            {
-                if (payments_flag == true)
-                {
-                    Paragraph space = new Paragraph("");
-                    Cell cell_space = new Cell().Add(space)
-                        .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                    t_check_Payments.AddCell(cell_space);
-                }
-
-                string Barter = "БАРТЕР";
-                Paragraph p_check_product_Payments_Barter = new Paragraph(Barter);
-                Cell cell_Payments_Barter = new Cell().Add(p_check_product_Payments_Barter)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                Paragraph p_check_product_Payments_Barter_amount = new Paragraph($"{double.Parse(parameters_Check_Pack.Payments.Barter)}");
-                Cell cell_Payments_Barter_amount = new Cell().Add(p_check_product_Payments_Barter_amount)
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-                t_check_Payments.AddCell(cell_Payments_Barter);
-                t_check_Payments.AddCell(cell_Payments_Barter_amount);
-            }
-
-            document.Add(t_check_Payments);
             document.Add(lineSeparator);
 
-
-            Table t_check_footer = new Table(UnitValue.CreatePercentArray(new float[] { 3, 7 })).UseAllAvailableWidth();
-
-
-            // Эл. адр. отправителя
-            Paragraph p_check_product_SenderEmail_string = new Paragraph("ЭЛ. АДР. ОТПРАВИТЕЛЯ:");
-            Cell cell_SenderEmail_string = new Cell().Add(p_check_product_SenderEmail_string)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            Paragraph p_check_product_SenderEmail = new Paragraph($"{parameters_Check_Pack.Parameters.SenderEmail}");
-            Cell cell_SenderEmail = new Cell().Add(p_check_product_SenderEmail)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_footer.AddCell(cell_SenderEmail_string);
-            t_check_footer.AddCell(cell_SenderEmail);
-
-            // САЙТ ФНС
-            Paragraph p_check_product_AddressSiteInspections_string = new Paragraph("САЙТ ФНС:");
-            Cell cell_AddressSiteInspections_string = new Cell().Add(p_check_product_AddressSiteInspections_string)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            Paragraph p_check_product_AddressSiteInspections = new Paragraph($"{parameters_Doc_Out_Param.Parameters.AddressSiteInspections}");
-            Cell cell_AddressSiteInspections = new Cell().Add(p_check_product_AddressSiteInspections)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            t_check_footer.AddCell(cell_AddressSiteInspections_string);
-            t_check_footer.AddCell(cell_AddressSiteInspections);
-
-            document.Add(t_check_footer);
+            // Генерация блока QR code и нижней части чека
+            Gen_QRcode gen_QRcode = new Gen_QRcode();
+            gen_QRcode.Footer_Check(document: document, pdfDoc: pdfDoc, parameters_Check_Pack: parameters_Check_Pack, parameters_Doc_Out_Param: parameters_Doc_Out_Param);
 
 
-            //добавить QR-код в приложение и установить местоположение
-            Paragraph paragraph2 = new Paragraph();
-            paragraph2.SetTextAlignment(TextAlignment.CENTER).Add(CreateQRcode(pdfDoc, text1));
-            document.Add(paragraph2);
-
-
-            // ФД и ФП + название фискального регистратора(пример: СП101-Ф)
-            Table t_check_footer_down = new Table(UnitValue.CreatePercentArray(new float[] { 6, 4 })).UseAllAvailableWidth();
-            Paragraph p_check_product_FD_FP = new Paragraph($"ФД:{parameters_Doc_Out_Param.Parameters.CheckNumber} ФП: {parameters_Doc_Out_Param.Parameters.FiscalSign}");
-            Cell cell_FD_FP = new Cell().Add(p_check_product_FD_FP)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-            Paragraph p_check_product_NameFiskReg = new Paragraph($"Какой-то ФР");
-            Cell cell_NameFiskReg = new Cell().Add(p_check_product_NameFiskReg)
-                .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-
-            t_check_footer_down.AddCell(cell_FD_FP);
-            t_check_footer_down.AddCell(cell_NameFiskReg);
-            document.Add(t_check_footer_down);
-
-            //сохранение документа
+            // сохранение документа
             document.Close();
 
         }
 
 
-        iText.Layout.Element.Image CreateQRcode(PdfDocument pdfDoc, string text)
-        {
-            //создание QR-кода
-            BarcodeQRCode barcodeQRCode = new BarcodeQRCode(text);
-            //конвертация QR-кода в изображение
-            var imgBar = new iText.Layout.Element.Image(barcodeQRCode.CreateFormXObject(pdfDoc));
-            imgBar.SetWidth(56.6929f);
-            imgBar.SetHeight(56.6929f);
-            return  imgBar;
-        }
-
-        // Тип операции (Таблица 25 документа ФФД)
-        private string check_OperationType(string OperationType)
-        {
-            string operType = OperationType;
-            string operType_return = "";
-            switch (operType)
-            {
-                case "1":
-                    operType_return = "ПРИХОД";
-                    break;
-                case "2":
-                    operType_return = "ВОЗВРАТ ПРИХОДА";
-                    break;
-                case "3":
-                    operType_return = "РАСХОД";
-                    break;
-                case "4":
-                    operType_return = "ВОЗВРАТ РАСХОДА";
-                    break;
-                default:
-                    operType_return = "ERROR !!! Тип операции!";
-                    break;
-            }
-            return operType_return;
-        }
-
-        // Системы налогообложения
-        private string check_TaxationSystem(string TaxationSystem)
-        {
-            string taxSistem = TaxationSystem;
-            string taxSistem_return = "";
-            switch (taxSistem)
-            {
-                case "0":
-                    taxSistem_return = "Общая";
-                    break;
-                case "1":
-                    taxSistem_return = "Упрощенная (Доход)";
-                    break;
-                case "2":
-                    taxSistem_return = "Упрощенная (Доход минус Расход)";
-                    break;
-                case "3":
-                    taxSistem_return = "Единый налог на вмененный доход";
-                    break;
-                case "4":
-                    taxSistem_return = "Единый сельскохозяйственный налог";
-                    break;
-                case "5":
-                    taxSistem_return = "Патентная система налогообложения";
-                    break;
-                default:
-                    taxSistem_return = "ERROR !!! Системы налогообложения!";
-                    break;
-            }
-            return taxSistem_return;
-        }
-
-        // Признак способа расчета
-        private string check_PaymentMethod(string PaymentMethod)
-        {
-            string priznak = PaymentMethod;
-            string priznak_return = "";
-            switch (priznak)
-            {
-                case "1":
-                    priznak_return = "Предоплата полная";
-                    break;
-                case "2":
-                    priznak_return = "Предоплата частичная";
-                    break;
-                case "3":
-                    priznak_return = "Аванс";
-                    break;
-                case "4":
-                    priznak_return = "Полный расчет";
-                    break;
-                case "5":
-                    priznak_return = "Частичный расчет и кредит";
-                    break;
-                case "6":
-                    priznak_return = "Передача в кредит";
-                    break;
-                case "7":
-                    priznak_return = "Оплата кредита";
-                    break;
-                default:
-                    priznak_return = "ERROR !!! Вызовите программиста!";
-                    break;
-            }
-            return priznak_return;
-        }
         // Признак предмета расчета
         private string check_CalculationSubject(string CalculationSubject)
         
