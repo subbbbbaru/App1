@@ -1,0 +1,69 @@
+﻿@using App1
+@using App1.Generate
+@using System.IO;
+@using System.Xml.Serialization;
+@using System.Reflection;
+@using App1.Models;
+
+@{
+
+
+    var assembly = typeof(MainPage).GetTypeInfo().Assembly;
+    Stream stream_Check_Pack = assembly.GetManifestResourceStream("App1.MyResources.CheckXML.xml");
+    var serialize_Check_Pack = new XmlSerializer(typeof(CheckPackage));
+    CheckPackage parameters_Check_Pack = (CheckPackage)serialize_Check_Pack.Deserialize(stream_Check_Pack);
+
+    Stream stream_Doc_Out_Param = assembly.GetManifestResourceStream("App1.MyResources.DocumentOutput.xml");
+    var serialize_Doc_Out_Param = new XmlSerializer(typeof(DocumentOutputParameters));
+    DocumentOutputParameters parameters_Doc_Out_Param = (DocumentOutputParameters)serialize_Doc_Out_Param.Deserialize(stream_Doc_Out_Param);
+
+    string text1 = $"КАССОВЫЙ ЧЕК №{parameters_Doc_Out_Param.Parameters.CheckNumber}";
+    Text text = new Text(text1);
+
+    text.SetFontSize(14);
+    Paragraph p_Title_check_Number = new Paragraph();
+
+
+    // разделитель
+    LineSeparator lineSeparator = new LineSeparator(new SolidLine());
+    document.Add(lineSeparator);
+
+    p_Title_check_Number.Add(text).SetTextAlignment(TextAlignment.CENTER);
+    document.Add(p_Title_check_Number);
+
+    document.Add(lineSeparator);
+
+    // Генерация блока ИНН...КТТ...
+    Gen_INN_KKT gen_INN_KKT = new Gen_INN_KKT();
+    gen_INN_KKT.Gen_INN_kkt(document, parameters_Check_Pack, parameters_Doc_Out_Param);
+
+
+    document.Add(lineSeparator);
+
+    // Генерация блока Подуктов
+    Gen_Check_Products gen_Check_Products = new Gen_Check_Products();
+    gen_Check_Products.Gen_Check_Product(document, parameters_Check_Pack, parameters_Doc_Out_Param, lineSeparator);
+
+    document.Add(lineSeparator);
+
+    // Генерация блока QR code и нижней части чека
+    Gen_QRcode gen_QRcode = new Gen_QRcode();
+    gen_QRcode.Footer_Check(document: document, pdfDoc: pdfDoc, parameters_Check_Pack: parameters_Check_Pack, parameters_Doc_Out_Param: parameters_Doc_Out_Param);
+
+
+
+
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>
